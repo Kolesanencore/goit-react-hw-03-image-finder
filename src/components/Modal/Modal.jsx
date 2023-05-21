@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import css from './Modal.styled.module.css';
-
 import { createPortal } from 'react-dom';
+import PropTypes from 'prop-types';
+
+import { motion } from 'framer-motion';
+
+import css from './Modal.styled.module.css';
 
 const modalRoot = document.querySelector('#modal-root');
 
@@ -34,14 +36,23 @@ export class Modal extends Component {
   };
 
   render() {
-    // const { largeImageURL } = this.props.image;
-
     return createPortal(
-      <div className={css.Overlay} onClick={this.handleOverlayClick}>
-        <div className={css.Modal}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        className={css.Overlay}
+        onClick={this.handleOverlayClick}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className={css.Modal}
+        >
           <img src={this.props.src} alt={this.props.alt} />
-        </div>
-      </div>,
+        </motion.div>
+      </motion.div>,
       modalRoot
     );
   }

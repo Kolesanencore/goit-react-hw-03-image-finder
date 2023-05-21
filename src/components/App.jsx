@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-// import axios from 'axios';
+
+import { fetchImages } from './services/pixabayAPI';
+
 import Searchbar from './Searchbar/SearchBar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
-
-import { fetchImages } from './services/pixabayAPI';
 
 export class App extends Component {
   state = {
@@ -16,6 +16,7 @@ export class App extends Component {
     isLoading: false,
     showModal: false,
     selectedImage: null,
+    loaderVisible: true,
   };
 
   handleSearchSubmit = async query => {
@@ -64,7 +65,8 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isLoading, showModal, selectedImage } = this.state;
+    const { images, isLoading, showModal, selectedImage, loaderVisible } =
+      this.state;
 
     return (
       <div
@@ -79,7 +81,7 @@ export class App extends Component {
 
         <ImageGallery images={images} onImageClick={this.openModal} />
 
-        {isLoading && <Loader />}
+        {isLoading && <Loader visible={loaderVisible} />}
 
         {images.length > 0 && !isLoading && (
           <Button onClick={this.handleLoadMore} />

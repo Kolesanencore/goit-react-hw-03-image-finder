@@ -1,18 +1,18 @@
 import PropTypes from 'prop-types';
 
+import { motion } from 'framer-motion';
 import React from 'react';
 import css from './ImageGalleryItem.module.css';
 
 export const ImageGalleryItem = ({ src, alt, openModal }) => {
   return (
-    <li className={css.ImageGalleryItem}>
-      <img
-        src={src}
-        alt={alt}
-        onClick={openModal}
-        className={css['ImageGalleryItem-image']}
-      />
-    </li>
+    <motion.li
+      className={css.ImageGalleryItem}
+      whileHover={{ scale: 1 }}
+      onClick={openModal}
+    >
+      <img src={src} alt={alt} className={css['ImageGalleryItem-image']} />
+    </motion.li>
   );
 };
 
@@ -21,3 +21,5 @@ ImageGalleryItem.propTypes = {
   alt: PropTypes.string.isRequired,
   openModal: PropTypes.func.isRequired,
 };
+
+export default ImageGalleryItem;
