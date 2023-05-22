@@ -17,56 +17,70 @@ export class App extends Component {
     showModal: false,
     selectedImage: null,
     loaderVisible: true,
+    hasMoreImages: true,
   };
 
-  handleSearchSubmit = async query => {
-    try {
-      this.setState({ query, page: 1, images: [], isLoading: true });
+  componentDidUpdate(_, prevState) {
+    const { query, page } = this.state;
+    if (prevState.query !== query || prevState.page !== page) {
+      this.fetchImages();
+    }
+  }
 
-      const images = await fetchImages(query);
-      this.setState({ images, isLoading: false });
+  updateStateAfterSubmittingForm = query => {
+    this.setState({
+      query,
+      page: 1,
+      images: [],
+      isLoading: true,
+      hasMoreImages: true,
+    });
+  };
+
+  handleLoadMore = () => {
+    const { hasMoreImages } = this.state;
+    if (hasMoreImages) {
+      this.setState(prevState => ({
+        page: prevState.page + 1,
+        isLoading: true,
+      }));
+    }
+  };
+
+  fetchImages = async () => {
+    const { query, page } = this.state;
+    try {
+      const newImages = await fetchImages(query, page);
+      if (newImages.length < 10) {
+        this.setState({ loaderVisible: false, hasMoreImages: false });
+      }
+      this.setState(prevState => ({
+        images: [...prevState.images, ...newImages],
+        isLoading: false,
+      }));
     } catch (error) {
       console.error('Error fetching images:', error);
       this.setState({ isLoading: false });
     }
   };
 
-  handleLoadMore = async () => {
-    try {
-      const { query, page } = this.state;
-
-      this.setState({ isLoading: true });
-
-      const newImages = await fetchImages(query, page + 1);
-      this.setState(prevState => ({
-        images: [...prevState.images, ...newImages],
-        page: prevState.page + 1,
-        isLoading: false,
-      }));
-
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: 'smooth',
-      });
-    } catch (error) {
-      console.error('Error fetching more images:', error);
-      this.setState({ isLoading: false });
-    }
-  };
-
   openModal = (src, alt) => {
-    this.setState({ showModal: { src, alt } });
+    this.setState({ showModal: true, selectedImage: { src, alt } });
   };
 
   closeModal = () => {
-    this.setState({
-      showModal: null,
-    });
+    this.setState({ showModal: false });
   };
 
   render() {
-    const { images, isLoading, showModal, selectedImage, loaderVisible } =
-      this.state;
+    const {
+      images,
+      isLoading,
+      showModal,
+      selectedImage,
+      loaderVisible,
+      hasMoreImages,
+    } = this.state;
 
     return (
       <div
@@ -77,24 +91,18 @@ export class App extends Component {
           paddingBottom: 24,
         }}
       >
-        <Searchbar onSubmit={this.handleSearchSubmit} />
+        <Searchbar onSubmit={this.updateStateAfterSubmittingForm} />
 
         <ImageGallery images={images} onImageClick={this.openModal} />
 
         {isLoading && <Loader visible={loaderVisible} />}
 
-        {images.length > 0 && !isLoading && (
+        {images.length > 0 && !isLoading && hasMoreImages && (
           <Button onClick={this.handleLoadMore} />
         )}
 
         {showModal && (
-          <Modal
-            image={selectedImage}
-            openModal={this.openModal}
-            closeModal={this.closeModal}
-            src={showModal.src}
-            alt={showModal.alt}
-          />
+          <Modal image={selectedImage} closeModal={this.closeModal} />
         )}
       </div>
     );

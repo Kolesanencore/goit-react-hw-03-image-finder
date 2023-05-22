@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 import { motion } from 'framer-motion';
-import React from 'react';
+
 import css from './ImageGalleryItem.module.css';
 
 export const ImageGalleryItem = ({ src, alt, openModal }) => {
