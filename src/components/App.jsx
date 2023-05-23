@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { fetchImages } from './services/pixabayAPI';
+import { fetchImages } from 'services/pixabayAPI';
 
 import Searchbar from './Searchbar/SearchBar';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -13,7 +13,6 @@ export class App extends Component {
     images: [],
     query: '',
     page: 1,
-    totalHits: 0,
     showButton: false,
     isLoading: false,
     showModal: false,
@@ -25,18 +24,18 @@ export class App extends Component {
       prevState.query !== this.state.query ||
       prevState.page !== this.state.page
     ) {
-      this.setState({ isLoading: true });
+      this.setState({ isLoading: true, showButton: false });
       fetchImages(this.state.query, this.state.page)
         .then(({ images, totalHits }) => {
-          this.setState({
-            images,
-            totalHits,
-            isLoading: false,
-            showButton: this.state.page < Math.ceil(totalHits / 12),
-          });
+          this.setState(prevState => ({
+            images: [...prevState.images, ...images],
+            showButton: prevState.page < Math.ceil(totalHits / 12),
+          }));
         })
         .catch(error => {
           console.error('Error fetching images:', error);
+        })
+        .finally(() => {
           this.setState({ isLoading: false });
         });
     }
