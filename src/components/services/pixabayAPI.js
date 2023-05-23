@@ -7,7 +7,7 @@ export const fetchImages = async (query, page = 1, perPage = 12) => {
     const response = await axios.get(
       `https://pixabay.com/api/?key=${API_KEY}&q=${query}&page=${page}&per_page=${perPage}&image_type=photo&orientation=horizontal`
     );
-    return response.data.hits;
+    return { images: response.data.hits, totalHits: response.data.totalHits };
   } catch (error) {
     throw new Error('Error fetching images from Pixabay API');
   }
